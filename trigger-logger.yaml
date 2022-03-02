@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    k8s-app: trigger-logger
+  name: trigger-logger
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      k8s-app: trigger-logger
+  template:
+    metadata:
+      labels:
+        k8s-app: trigger-logger
+    spec:
+      securityContext:
+        windowsOptions:
+          hostProcess: true
+          runAsUserName: "NT AUTHORITY\\system"
+      hostNetwork: true
+      containers:
+      - image: jsturtevant/trigger-logger:latest
+        args: [ "config.json" ]
+        name: trigger-logger
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: trigger-logger-config
+          mountPath: /config.json
+          subPath: config.json
+      nodeSelector:
+        kubernetes.io/os: windows
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - operator: Exists
+      volumes:
+      - configMap:
+          name: trigger-logger-config
+        name: trigger-logger-config
+  updateStrategy:
+    type: RollingUpdate
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: trigger-logger-config
+  namespace: kube-system
+data:
+  config.json: |
+    {
+    "trigger": [
+        {
+            "name": "test",
+            "type": "Namespace",
+            "Action":{
+                "type": "wpr",
+                "profiles": [
+                    "CPU",
+                    "DiskIO",
+                    "FileIO"
+                ]
+            } 
+        }
+    ],
+    "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
+    }

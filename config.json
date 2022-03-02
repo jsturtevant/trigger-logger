@@ -1,0 +1,17 @@
+{
+    "trigger": [
+        {
+            "name": "test",
+            "type": "Namespace",
+            "Action":{
+                "type": "wpr",
+                "profiles": [
+                    "CPU",
+                    "DiskIO",
+                    "FileIO"
+                ]
+            } 
+        }
+    ],
+    "kubeconfig": "C:\\Users\\jstur\\.kube\\config"
+}
