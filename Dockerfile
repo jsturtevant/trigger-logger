@@ -6,8 +6,8 @@ WORKDIR /app
 COPY *.csproj ./
 RUN dotnet restore
 
-# Copy everything else and build
-COPY *.cs ./
+# Copy all files with extension .cs recursively
+COPY . ./
 RUN dotnet publish -c Release -r win-x64 -o out
 
 # Build runtime image

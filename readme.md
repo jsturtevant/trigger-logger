@@ -9,7 +9,7 @@ This leverages Hostprocess container feature in kubernetes to run commands direc
 Build the container:
 
 ```
-docker build -t jsturtevant/trigger-logger:latest
+docker build -t jsturtevant/trigger-logger:latest .
 ```
 
 Deploy:

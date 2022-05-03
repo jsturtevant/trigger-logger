@@ -4,7 +4,7 @@ metadata:
   labels:
     k8s-app: trigger-logger
   name: trigger-logger
-  namespace: kube-system
+  namespace: trigger-logger
 spec:
   selector:
     matchLabels:
@@ -45,22 +45,56 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: trigger-logger-config
-  namespace: kube-system
+  namespace: trigger-logger
 data:
   config.json: |
     {
     "trigger": [
         {
             "name": "test",
-            "type": "Namespace",
-            "Action":{
+            "type": "namespace",
+            "action": {
                 "type": "wpr",
-                "profiles": [
-                    "CPU",
-                    "DiskIO",
-                    "FileIO"
-                ]
-            } 
+                "config": {
+                    "profiles": [
+                        "CPU",
+                        "DiskIO",
+                        "FileIO"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "packet-capture",
+            "type": "namespace",
+            "action": {
+                "type": "external",
+                "config": {
+                    "expand": "none",
+                    "addToPath": "true",
+                    "url": "https://aka.ms/startpacketcapture",
+                    "downloadLocation": "c:\\temp\\",
+                    "downloadFileName": "startpacketcapture.ps1",
+                    "startCommand": ["powershell", "c:\\temp\\startpacketcapture.ps1", "-NoPrompt", "-EtlFile", "{tracefile}"],
+                    "stopCommand": ["powershell","/c", "Stop-NetEventSession HnsPacketCapture"]
+                }
+            }
+        },
+        {
+            "name": "procmon",
+            "type": "namespace",
+            "action": {
+                "type": "external",
+                "config": {
+                    "expand": "zip",
+                    "addToPath": "true",
+                    "url": "https://download.sysinternals.com/files/ProcessMonitor.zip",
+                    "downloadLocation": "c:\\temp\\",
+                    "downloadFileName": "ProcessMonitor.zip",
+                    "startCommand": ["cmd", "/c", "c:\\temp\\procmon64.exe", "-accepteula", "/backingfile {tracefile}"],
+                    "stopCommand": ["cmd", "/c", "c:\\temp\\procmon64.exe", "/terminate"]
+                }
+            }
         }
     ],
     "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
