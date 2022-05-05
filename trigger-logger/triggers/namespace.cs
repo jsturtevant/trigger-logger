@@ -40,7 +40,7 @@ public class NamespaceTrigger : Triggers
             Console.WriteLine($"starting action for namespace {this.nsName} ...");
             foreach (var action in actionRunners)
             {
-                await action.RunAsync(new RunnerConfig { name = this.nsName });
+                await action.RunAsync(new RunnerConfig { name = this.nsName, type = TriggerType.Namespace.ToString() });
             }
         }
 
@@ -48,7 +48,7 @@ public class NamespaceTrigger : Triggers
         {
             foreach (var action in actionRunners)
             {
-                await action.StopAsync(new RunnerConfig { name = this.nsName });
+                await action.StopAsync(new RunnerConfig { name = this.nsName, type = TriggerType.Namespace.ToString()  });
             }
         }
     }

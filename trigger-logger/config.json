@@ -4,8 +4,14 @@
       "name": "test",
       "type": "namespace",
       "actions": [
-        "wpr-cpu",
         "console-out"
+      ]
+    },
+    {
+      "name": "wpr-cpu",
+      "type": "namespace",
+      "actions": [
+        "wpr-cpu"
       ]
     },
     {

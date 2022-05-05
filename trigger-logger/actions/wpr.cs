@@ -6,17 +6,17 @@ public class WprActionConfig {
 
 public class WprActionRunner : ActionRunner
 {
+    public List<string> profiles { get; set; }
+
     public WprActionRunner(JsonElement wprActionConfig)
     {
         var action = JsonSerializer.Deserialize<WprActionConfig>(wprActionConfig);
         profiles = action?.profiles;
     }
 
-    public List<string> profiles { get; set; }
-
-    public Task RunAsync(RunnerConfig config)
+    public Task RunAsync(RunnerConfig runnerConfig)
     {
-        Console.WriteLine($"Starting WPR action for trigger {config.name} ...");
+        Console.WriteLine($"Starting WPR action for trigger {runnerConfig.name} ...");
 
         var profiles = new List<string>();
 

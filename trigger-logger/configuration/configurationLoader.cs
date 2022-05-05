@@ -62,6 +62,8 @@ public static class Configuration
                 return new WprActionRunner(action.config);
             case "external":
                 return new ExternalActionRunner(action.config);
+            case "console":
+                return new ConsoleActionRunner();
             default:
                 Console.WriteLine($"Unknown action type '{action.type}'");
                 return null;
