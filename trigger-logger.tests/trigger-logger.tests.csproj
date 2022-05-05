@@ -26,4 +26,9 @@
     <ProjectReference Include="..\trigger-logger\trigger-logger.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\trigger-logger\config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

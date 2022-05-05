@@ -5,18 +5,19 @@ public class Trigger
 {
     public string name { get; set; }
     public TriggerType type { get; set; }
-    public Action action { get; set; }
+    public List<Action> actions { get; set; }
 }
  
 public class Action {
     public string type { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public JsonElement config { get; set; }
 }
 
 public class Config
 {
-    public List<Trigger> trigger { get; set; }
+    public List<Trigger> triggers { get; set; }
     public string kubeconfig {get;set;}
 }
 

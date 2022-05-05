@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿
 
 string configFilePath = "config.json";
 if (args.Length > 0)
@@ -8,22 +7,11 @@ if (args.Length > 0)
 }
 
 // load configuration
-Console.WriteLine($"Creating triggers from configuration file '{configFilePath}'");
-var configurationString = File.ReadAllText(configFilePath);
-Console.WriteLine($"{configurationString}");
-var options = new JsonSerializerOptions
-{
-    WriteIndented = true,
-    Converters =
-    {
-        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-    }
-};
-Config configuration = JsonSerializer.Deserialize<Config>(configurationString,options);
+Config configuration = Configuration.ReadFile(configFilePath);
 
 var tasks = new List<Task>();
 INamespaceListener listener = null;
-if (configuration.trigger.Any(x => x.type == TriggerType.Namespace))
+if (configuration.triggers.Any(x => x.type == TriggerType.Namespace))
 {
     Console.WriteLine("Creating kubernetes namespace listener");
     listener = new NamespaceListener(configuration.kubeconfig);
