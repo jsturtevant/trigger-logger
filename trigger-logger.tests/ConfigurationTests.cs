@@ -54,8 +54,9 @@ public class ConfigurationTests
         {
             name = "test",
             type = TriggerType.Namespace,
-            actions = new List<Action>() { new Action() { type = "wpr", config = JsonDocument.Parse("{}").RootElement } }
+            actions = new List<string>() { "test" }
         });
+        config.actions = new List<Action>() { new Action() { name = "test", type = "wpr", config = JsonDocument.Parse("{}").RootElement } };
 
 
         var triggers = Configuration.LoadTriggers(config, new fakelistener());
@@ -74,10 +75,12 @@ public class ConfigurationTests
         {
             name = "test",
             type = TriggerType.Namespace,
-            actions = new List<Action>() {
-                 new Action() { type = "wpr", config = JsonDocument.Parse("{}").RootElement },
-                new Action() { type = "external", config = JsonDocument.Parse("{}").RootElement }}
+            actions = new List<string>() { "test1", "test2"}
         });
+
+        config.actions = new List<Action>();
+        config.actions.Add(new Action() { name = "test1", type = "wpr", config = JsonDocument.Parse("{}").RootElement } );
+        config.actions.Add(new Action() { name = "test2", type = "external", config = JsonDocument.Parse("{}").RootElement } );
 
         var triggers = Configuration.LoadTriggers(config, new fakelistener());
         Assert.Equal<int>(triggers.Count, 1);

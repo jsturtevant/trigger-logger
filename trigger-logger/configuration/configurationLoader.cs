@@ -36,9 +36,10 @@ public static class Configuration
                 case TriggerType.Namespace:
                     var nsTrigger = new NamespaceTrigger(trigger.name, k8slistner);
 
-                    foreach (var action in trigger.actions)
+                    foreach (var actionName in trigger.actions)
                     {
-                        Console.WriteLine($"Processing action configuration '{action.type}' for trigger '{trigger.name}' of type '{trigger.type}" );
+                        Console.WriteLine($"Processing action configuration '{actionName}' for trigger '{trigger.name}' of type '{trigger.type}" );
+                        var action = configuration.actions.First(x => x.name == actionName);
                         nsTrigger.AddAction(GetActionRunner(action));
                     }
 
