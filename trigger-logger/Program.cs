@@ -20,16 +20,26 @@ var options = new JsonSerializerOptions
     }
 };
 Config configuration = JsonSerializer.Deserialize<Config>(configurationString,options);
-Dictionary<TriggerType, Triggers> triggers = Configuration.LoadTriggers(configuration);
+
+var tasks = new List<Task>();
+INamespaceListener listener = null;
+if (configuration.trigger.Any(x => x.type == TriggerType.Namespace))
+{
+    Console.WriteLine("Creating kubernetes namespace listener");
+    listener = new NamespaceListener(configuration.kubeconfig);
+    tasks.Add(listener.Run());
+}
+
+List<Triggers> triggers = Configuration.LoadTriggers(configuration, listener);
 
 // Start the triggers and wait for the tasks to complete with Cancellation support
 Console.WriteLine($"Starting triggers");
-var tasks = new List<Task>();
+
 var cancelation = new CancellationTokenSource();
 Console.CancelKeyPress += (sender, eventArgs) => cancelation.Cancel();
 foreach (var trigger in triggers)
 {
-    tasks.Add(trigger.Value.StartAsync());
+    tasks.Add(trigger.StartAsync());
 }
 Task.WaitAll(tasks.ToArray(), cancelation.Token);
 Console.WriteLine($"Exiting program");

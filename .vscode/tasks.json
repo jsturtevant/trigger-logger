@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/trigger-logger.csproj",
+                "${workspaceFolder}/trigger-logger/trigger-logger.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/trigger-logger.csproj",
+                "${workspaceFolder}/trigger-logger/trigger-logger.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/trigger-logger.csproj"
+                "${workspaceFolder}/trigger-logger/trigger-logger.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net6.0/trigger-logger.dll",
+            "program": "${workspaceFolder}/trigger-logger/bin/Debug/net6.0/trigger-logger.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/trigger-logger",
             "console": "internalConsole",
             "stopAtEntry": false
         },

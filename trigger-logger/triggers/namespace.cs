@@ -1,67 +1,56 @@
 using k8s;
-using k8s.Models;
+
 public class NamespaceTrigger : Triggers
 {
-    private readonly string configString;
-    private Dictionary<string, List<ActionRunner>> nsActions = new Dictionary<string, List<ActionRunner>>();
+    private INamespaceListener k8slistner;
+    private List<ActionRunner> actionRunners;
+    private string nsName;
 
-    public NamespaceTrigger(string configString)
+    public NamespaceTrigger(string nsName, INamespaceListener k8slistner)
     {
-        this.nsActions = new Dictionary<string, List<ActionRunner>>();
-        this.configString = configString;
+        this.k8slistner = k8slistner;
+        this.actionRunners = new List<ActionRunner>();
+        this.nsName = nsName;
     }
 
-    public void Add(string ns, ActionRunner action){
-        // if not present add to dictionary 
-        if (!this.nsActions.ContainsKey(ns))
-        {
-            this.nsActions.Add(ns, new List<ActionRunner>());
-        }
-
-        var actions = this.nsActions[ns];
-        actions.Add(action);
-
+    public void AddAction(ActionRunner action){
+        this.actionRunners.Add(action);
     }
 
     public List<ActionRunner> GetActions()
     {
-        return this.nsActions.Values.SelectMany(x => x).ToList();
+        return this.actionRunners;
     }
 
-    public async Task StartAsync()
+    public Task StartAsync()
     {
-        var k8sConfig = KubernetesClientConfiguration.BuildConfigFromConfigFile(this.configString);
-        var client = new Kubernetes(k8sConfig);
+        foreach (var action in this.actionRunners){
+            Console.WriteLine($"Registering action for namespace '{this.nsName}'");
+            this.k8slistner.RegisterNameSpace(this.nsName, this.RunActionAsync);
+        }
+        return Task.CompletedTask;
+    }
 
-        var nsResp = client.ListNamespaceWithHttpMessagesAsync(watch: true);
+    private async Task RunActionAsync(WatchEventType type)
+    {
+       Console.WriteLine($"Got event type {type} for namespace {this.nsName}");
 
-        Console.WriteLine("Waiting for namespace events");
-        await foreach (var (type, ns) in nsResp.WatchAsync<V1Namespace, V1NamespaceList>())
+        if (type == WatchEventType.Added)
         {
-            Console.WriteLine(type);
-            Console.WriteLine(ns.Metadata.Name);
-
-            if (this.nsActions.ContainsKey(ns.Metadata.Name) && type.ToString() == "Added")
+            Console.WriteLine($"starting action for namespace {this.nsName} ...");
+            foreach (var action in actionRunners)
             {
-                Console.WriteLine($"starting action for namespace {ns.Metadata.Name} ...");
-                var actions = this.nsActions[ns.Metadata.Name];
-                foreach (var action in actions)
-                {
-                    await action.RunAsync(new RunnerConfig { name = ns.Metadata.Name });
-                }
-            }
-
-            if (this.nsActions.ContainsKey(ns.Metadata.Name) && type.ToString() == "Deleted")
-            {
-                var actions = this.nsActions[ns.Metadata.Name];
-                foreach (var action in actions)
-                {
-                    await action.StopAsync(new RunnerConfig { name = ns.Metadata.Name });
-                }
+                await action.RunAsync(new RunnerConfig { name = this.nsName });
             }
         }
-        Console.WriteLine("Completed waiting for namespace events");
+
+        if (type == WatchEventType.Deleted)
+        {
+            foreach (var action in actionRunners)
+            {
+                await action.StopAsync(new RunnerConfig { name = this.nsName });
+            }
+        }
     }
+
 }
-
-

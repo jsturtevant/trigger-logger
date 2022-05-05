@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Xunit;
 using System.Text.Json;
+using System.Threading.Tasks;
+using k8s;
 
 namespace trigger_logger.tests;
 
@@ -9,14 +11,14 @@ public class ConfigurationTests
     [Fact]
     public void blank_configuration_should_have_no_triggers()
     {
-        var triggers = Configuration.LoadTriggers(new Config());
+        var triggers = Configuration.LoadTriggers(new Config(), new fakelistener());
         Assert.Equal<int>(triggers.Count, 0);
     }
 
     [Fact]
     public void null_configuration_should_have_no_triggers()
     {
-        var triggers = Configuration.LoadTriggers(null);
+        var triggers = Configuration.LoadTriggers(null, new fakelistener());
         Assert.Equal<int>(triggers.Count, 0);
     }
 
@@ -35,11 +37,24 @@ public class ConfigurationTests
         });
 
 
-        var triggers = Configuration.LoadTriggers(config);
+        var triggers = Configuration.LoadTriggers(config, new fakelistener());
         Assert.Equal<int>(triggers.Count, 1);
-        var action = triggers[TriggerType.Namespace].GetActions();
+        var action = triggers[0].GetActions();
         Assert.Equal<int>(action.Count, 1);
         Assert.IsType<WprActionRunner>(action[0]);
     }
 
+}
+
+public class fakelistener : INamespaceListener
+{
+    public void RegisterNameSpace(string ns, System.Func<WatchEventType, Task> runner)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public Task Run()
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -1,8 +1,8 @@
 public static class Configuration
 {
-    public static Dictionary<TriggerType, Triggers> LoadTriggers(Config configuration)
+    public static List<Triggers> LoadTriggers(Config configuration, INamespaceListener k8slistner)
     {
-        var triggers = new Dictionary<TriggerType, Triggers>();
+        var triggers = new List<Triggers>();
         if (configuration == null || configuration.trigger == null)
         {
             return triggers;
@@ -10,12 +10,14 @@ public static class Configuration
         
         foreach (var trigger in configuration.trigger)
         {
-            Console.WriteLine($"Processing Trigger '{trigger.name}' of type '{trigger.type}' with action '{trigger.action.type}'");
+            Console.WriteLine($"Processing configuration for trigger '{trigger.name}' of type '{trigger.type}' with action '{trigger.action.type}'");
             switch (trigger.type)
             {
                 case TriggerType.Namespace:
-                    AddNamespaceTrigger(configuration, triggers, trigger);
-                    continue;
+                    var nsTrigger = new NamespaceTrigger(trigger.name, k8slistner);
+                    nsTrigger.AddAction(GetActionRunner(trigger.action));
+                    triggers.Add(nsTrigger);
+                    break;
                 default:
                     Console.WriteLine($"Unknown trigger type '{trigger.type}'");
                     break;
@@ -23,21 +25,6 @@ public static class Configuration
         }
 
         return triggers;
-    }
-
-    public static void AddNamespaceTrigger(Config configuration, Dictionary<TriggerType, Triggers> triggers, Trigger trigger)
-    {
-        if (triggers.ContainsKey(TriggerType.Namespace))
-        {
-            var nsTrigger = triggers[TriggerType.Namespace] as NamespaceTrigger;
-            nsTrigger.Add(trigger.name, GetActionRunner(trigger.action));
-        }
-        else
-        {
-            var nsTrigger = new NamespaceTrigger(configuration.kubeconfig);
-            nsTrigger.Add(trigger.name, GetActionRunner(trigger.action));
-            triggers.Add(TriggerType.Namespace, nsTrigger);
-        }
     }
 
     public static ActionRunner GetActionRunner(Action action)
