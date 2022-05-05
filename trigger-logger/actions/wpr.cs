@@ -6,9 +6,9 @@ public class WprActionConfig {
 
 public class WprActionRunner : ActionRunner
 {
-    public WprActionRunner(JsonElement wprAction)
+    public WprActionRunner(JsonElement wprActionConfig)
     {
-        var action = JsonSerializer.Deserialize<WprActionConfig>(wprAction);
+        var action = JsonSerializer.Deserialize<WprActionConfig>(wprActionConfig);
         profiles = action?.profiles;
     }
 

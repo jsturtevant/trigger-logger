@@ -23,6 +23,11 @@ public class NamespaceTrigger : Triggers
 
     }
 
+    public List<ActionRunner> GetActions()
+    {
+        return this.nsActions.Values.SelectMany(x => x).ToList();
+    }
+
     public async Task StartAsync()
     {
         var k8sConfig = KubernetesClientConfiguration.BuildConfigFromConfigFile(this.configString);

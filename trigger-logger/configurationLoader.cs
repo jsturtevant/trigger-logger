@@ -1,11 +1,13 @@
-
-using System.Text.Json;
-
 public static class Configuration
 {
     public static Dictionary<TriggerType, Triggers> LoadTriggers(Config configuration)
     {
         var triggers = new Dictionary<TriggerType, Triggers>();
+        if (configuration == null || configuration.trigger == null)
+        {
+            return triggers;
+        }
+        
         foreach (var trigger in configuration.trigger)
         {
             Console.WriteLine($"Processing Trigger '{trigger.name}' of type '{trigger.type}' with action '{trigger.action.type}'");
