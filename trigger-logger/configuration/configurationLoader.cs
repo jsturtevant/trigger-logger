@@ -40,7 +40,16 @@ public static class Configuration
                     {
                         Console.WriteLine($"Processing action configuration '{actionName}' for trigger '{trigger.name}' of type '{trigger.type}" );
                         var action = configuration.actions.First(x => x.name == actionName);
-                        nsTrigger.AddAction(GetActionRunner(action));
+                        var actionRunner = GetActionRunner(action);
+
+                        if (action.outputs != null && action.outputs.Count > 0){
+                            foreach (var outputName in action.outputs)
+                            {
+                                var output = configuration.outputs.First(x => x.name == action.outputs[0]);
+                                actionRunner.AddOutput(GetOutputter(output));
+                            }
+                        }
+                        nsTrigger.AddAction(actionRunner);
                     }
 
                     triggers.Add(nsTrigger);
@@ -66,6 +75,18 @@ public static class Configuration
                 return new ConsoleActionRunner();
             default:
                 Console.WriteLine($"Unknown action type '{action.type}'");
+                return null;
+        }
+    } 
+
+    public static Outputers GetOutputter(Output output)
+    {
+        switch (output.type)
+        {
+            case "az-storage":
+                return new AzureStorageOutputer(output.config);
+            default:
+                Console.WriteLine($"Unknown action type '{output.type}'");
                 return null;
         }
     } 

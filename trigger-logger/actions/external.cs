@@ -22,6 +22,16 @@ public class ExternalActionRunner : ActionRunner
         this.config = JsonSerializer.Deserialize<ExternalActionConfig>(wprAction);
     }
 
+    public void AddOutput(Outputers output)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<Outputers> GetOutputs()
+    {
+        throw new NotImplementedException();
+    }
+
     // to do make this more robust
     public async Task RunAsync(RunnerConfig config)
     {

@@ -24,7 +24,8 @@ public class ConfigurationTests
             Converters =
             {
                 new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-            }
+            },
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
 
         };
         string output = JsonSerializer.Serialize(config, options);
@@ -75,12 +76,12 @@ public class ConfigurationTests
         {
             name = "test",
             type = TriggerType.Namespace,
-            actions = new List<string>() { "test1", "test2"}
+            actions = new List<string>() { "test1", "test2" }
         });
 
         config.actions = new List<Action>();
-        config.actions.Add(new Action() { name = "test1", type = "wpr", config = JsonDocument.Parse("{}").RootElement } );
-        config.actions.Add(new Action() { name = "test2", type = "external", config = JsonDocument.Parse("{}").RootElement } );
+        config.actions.Add(new Action() { name = "test1", type = "wpr", config = JsonDocument.Parse("{}").RootElement });
+        config.actions.Add(new Action() { name = "test2", type = "external", config = JsonDocument.Parse("{}").RootElement });
 
         var triggers = Configuration.LoadTriggers(config, new fakelistener());
         Assert.Equal<int>(triggers.Count, 1);
@@ -88,6 +89,42 @@ public class ConfigurationTests
         Assert.Equal<int>(action.Count, 2);
         Assert.IsType<WprActionRunner>(action[0]);
         Assert.IsType<ExternalActionRunner>(action[1]);
+    }
+
+    [Fact]
+    public void actions_should_be_loaded_with_matching_outputer()
+    {
+        var config = new Config();
+        config.triggers = new List<Trigger>();
+        config.triggers.Add(new Trigger()
+        {
+            name = "test",
+            type = TriggerType.Namespace,
+            actions = new List<string>() { "test" }
+        });
+        config.actions = new List<Action>() { new Action() {
+                name = "test",
+                type = "wpr",
+                config = JsonDocument.Parse("{}").RootElement,
+                outputs = new List<string>() { "tesoutput" },
+            }
+        };
+        config.outputs = new List<Output>() { new Output() {
+                name = "tesoutput",
+                type = "az-storage",
+                config = JsonDocument.Parse("{}").RootElement 
+            }
+        };
+
+        var triggers = Configuration.LoadTriggers(config, new fakelistener());
+        Assert.Equal<int>(triggers.Count, 1);
+        var action = triggers[0].GetActions();
+        Assert.Equal<int>(action.Count, 1);
+        Assert.IsType<WprActionRunner>(action[0]);
+
+        var outputs = action[0].GetOutputs();
+        Assert.Equal(1, outputs.Count);
+        Assert.IsType<AzureStorageOutputer>(outputs[0]);
     }
 
 }

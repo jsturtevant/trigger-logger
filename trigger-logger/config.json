@@ -39,7 +39,10 @@
           "DiskIO",
           "FileIO"
         ]
-      }
+      },
+      "outputs": [
+        "azstorage"
+      ]
     },
     {
       "name": "console-out",
@@ -67,7 +70,10 @@
           "c:\\temp\\procmon64.exe",
           "/terminate"
         ]
-      }
+      },
+      "outputs": [
+        "azstorage"
+      ]
     },
     {
       "name": "packet-capture",
@@ -90,6 +96,16 @@
           "/c",
           "Stop-NetEventSession HnsPacketCapture"
         ]
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "name": "azstorage",
+      "type": "az-storage",
+      "config": {
+        "containerName": "trigger-traces",
+        "connectionstring": ""
       }
     }
   ],
