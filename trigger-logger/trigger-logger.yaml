@@ -21,7 +21,6 @@ spec:
       hostNetwork: true
       containers:
       - image: jsturtevant/trigger-logger:latest
-        args: [ "config.json" ]
         name: trigger-logger
         imagePullPolicy: Always
         volumeMounts:
