@@ -1,4 +1,4 @@
-public class ConsoleActionRunner : ActionRunner
+public class ConsoleActionRunner : ActionRunnerBase, ActionRunner
 {
     public void AddOutput(Outputers output)
     {

@@ -10,3 +10,4 @@ public class RunnerConfig{
     public string name;
     public string type;
 }
+

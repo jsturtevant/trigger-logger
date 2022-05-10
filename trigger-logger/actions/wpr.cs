@@ -4,58 +4,28 @@ public class WprActionConfig {
     public List<string> profiles { get; set; }
 }
 
-public class WprActionRunner : ActionRunner
+public class ActionRunnerBase
 {
-    private List<string> profiles { get; set; }
-    private List<Outputers> outputs { get; set; }
-
-    public WprActionRunner(JsonElement wprActionConfig)
+    protected List<Outputers> outputs { get; set; } = new List<Outputers>();
+    public List<Outputers> GetOutputs()
     {
-        var action = JsonSerializer.Deserialize<WprActionConfig>(wprActionConfig);
-        profiles = action?.profiles;
-        this.outputs = new List<Outputers>();
+        return this.outputs;
     }
 
-    public Task RunAsync(RunnerConfig runnerConfig)
+    public void AddOutput(Outputers output)
     {
-        Console.WriteLine($"Starting WPR action for trigger {runnerConfig.name} ...");
-
-        var profiles = new List<string>();
-
-        foreach (string p in this.profiles)
-        {
-            Console.WriteLine($"with profile {p} ...");
-            profiles.Add($"-start");
-            profiles.Add($"{p}");
-        }
-        Process.Start("wpr", profiles);
-        return Task.CompletedTask;
+        this.outputs.Add(output);
     }
 
-    public async Task StopAsync(RunnerConfig config){
-        try
+    protected async Task RunoutputsAsync(string filename){
+        if (outputs.Count > 0)
         {
-            //TODO validate already exists
-            Console.WriteLine($"stopping trace for namespace {config.name} ...");
-            
-            var timeString = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
-            var filename = $"c:\\trace-{config.name}-{timeString}.etl";
-            Process.Start("wpr", $"-stop {filename}");
-            Console.WriteLine($"file written to {filename}");
-
-            if (outputs.Count > 0)
+            Console.WriteLine($"external outputs are registered");
+            await WaitForFile(filename);
+            foreach (var output in outputs)
             {
-                Console.WriteLine($"external outputs are registered");
-                await WaitForFile(filename);
-                foreach (var output in outputs)
-                {
-                    await output.Run(filename);
-                }
+                await output.Run(filename);
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
         }
     }
 
@@ -95,14 +65,55 @@ public class WprActionRunner : ActionRunner
             }
         }
     }
+}
 
-    public List<Outputers> GetOutputs()
+public class WprActionRunner : ActionRunnerBase, ActionRunner
+{
+    private List<string> profiles { get; set; }
+    
+
+    public WprActionRunner(JsonElement wprActionConfig)
     {
-        return this.outputs;
+        var action = JsonSerializer.Deserialize<WprActionConfig>(wprActionConfig);
+        profiles = action?.profiles;
     }
 
-    public void AddOutput(Outputers output)
+    public Task RunAsync(RunnerConfig runnerConfig)
     {
-        this.outputs.Add(output);
+        Console.WriteLine($"Starting WPR action for trigger {runnerConfig.name} ...");
+
+        var profiles = new List<string>();
+
+        foreach (string p in this.profiles)
+        {
+            Console.WriteLine($"with profile {p} ...");
+            profiles.Add($"-start");
+            profiles.Add($"{p}");
+        }
+        Process.Start("wpr", profiles);
+        return Task.CompletedTask;
     }
+
+    public async Task StopAsync(RunnerConfig config){
+        try
+        {
+            //TODO validate already exists
+            Console.WriteLine($"stopping trace for namespace {config.name} ...");
+            
+            var timeString = DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss");
+            var filename = $"c:\\trace-{config.name}-{timeString}.etl";
+            Process.Start("wpr", $"-stop {filename}");
+            Console.WriteLine($"file written to {filename}");
+            
+            await RunoutputsAsync(filename);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    
+
+
 }

@@ -12,7 +12,7 @@ public class ExternalActionConfig {
     public string downloadFileName {get;set;}
 }
 
-public class ExternalActionRunner : ActionRunner
+public class ExternalActionRunner :  ActionRunnerBase, ActionRunner
 {
     static readonly HttpClient client = new HttpClient();
     private ExternalActionConfig? config;
@@ -20,16 +20,6 @@ public class ExternalActionRunner : ActionRunner
     public ExternalActionRunner(JsonElement wprAction)
     {
         this.config = JsonSerializer.Deserialize<ExternalActionConfig>(wprAction);
-    }
-
-    public void AddOutput(Outputers output)
-    {
-        throw new NotImplementedException();
-    }
-
-    public List<Outputers> GetOutputs()
-    {
-        throw new NotImplementedException();
     }
 
     // to do make this more robust
@@ -76,6 +66,8 @@ public class ExternalActionRunner : ActionRunner
         try{
             var args = string.Join(" ", this.config.stopCommand.GetRange(1, this.config.stopCommand.Count - 1));
             Process.Start(this.config.stopCommand.First(), args);
+
+            //todo :  await RunoutputsAsync(filename);
         }
         catch (Exception e)
         {
