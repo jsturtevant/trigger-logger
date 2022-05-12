@@ -136,7 +136,7 @@ public class fakelistener : INamespaceListener
         throw new System.NotImplementedException();
     }
 
-    public Task Run()
+    public void Start()
     {
         throw new System.NotImplementedException();
     }

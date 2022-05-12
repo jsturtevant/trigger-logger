@@ -109,5 +109,7 @@
       }
     }
   ],
-  "kubeconfig": "C:\\Users\\jstur\\.kube\\config"
+  "kubernetes": {
+    "kubeconfig": "C:\\Users\\jstur\\.kube\\config"
+  }
 }

@@ -31,6 +31,9 @@ public class Config
      public List<Action> actions { get; set; }
 
      public List<Output> outputs { get; set; }
+}
+
+public class kubernetes {
     public string kubeconfig {get;set;}
 }
 
