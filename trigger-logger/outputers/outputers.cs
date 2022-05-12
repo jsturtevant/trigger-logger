@@ -8,7 +8,6 @@ public interface Outputers
 
 public class AzureStorageConfig
 {
-    public string connectionstring { get; set; }
     public string containerName { get; set; }
 }
 
@@ -24,7 +23,10 @@ public class AzureStorageOutputer : Outputers
     public async Task Run(string filename)
     {
         Console.WriteLine($"uploading to azure storage");
-        BlobContainerClient container = new BlobContainerClient(this.config.connectionstring, this.config.containerName);
+        // to do support other ways to authenticate
+        var connString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+
+        BlobContainerClient container = new BlobContainerClient(connString, this.config.containerName);
         await container.CreateIfNotExistsAsync();
 
         string blobname = Path.GetFileName(filename);

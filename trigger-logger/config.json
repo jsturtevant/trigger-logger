@@ -104,8 +104,7 @@
       "name": "azstorage",
       "type": "az-storage",
       "config": {
-        "containerName": "trigger-traces",
-        "connectionstring": ""
+        "containerName": "trigger-traces"
       }
     }
   ],

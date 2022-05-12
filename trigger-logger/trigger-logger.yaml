@@ -27,6 +27,13 @@ spec:
         - name: trigger-logger-config
           mountPath: /config.json
           subPath: config.json
+        env:
+        - name: AZURE_STORAGE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: azure-storage-connection-string
+              key: connection-string
+              optional: false 
       nodeSelector:
         kubernetes.io/os: windows
       tolerations:
@@ -79,9 +86,17 @@ data:
           "type": "az-storage",
           "config": {
             "containerName": "trigger-traces",
-            "connectionstring": ""
           }
         }
       ],
       "kubeconfig": "/etc/cni/net.d/calico-kubeconfig"
     }
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azure-storage-connection-string
+type: Opaque
+data:
+  # base64 string: echo -n '1f2d1e2e67df' | base64
+  connection-string: <base64 encoded connection string>
