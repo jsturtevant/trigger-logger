@@ -1,0 +1,116 @@
+{
+    "Config": {
+        "triggers": [
+            {
+                "name": "test",
+                "type": "namespace",
+                "actions": [
+                    "console-out"
+                ]
+            },
+            {
+                "name": "wpr-cpu",
+                "type": "namespace",
+                "actions": [
+                    "wpr-cpu"
+                ]
+            },
+            {
+                "name": "procmon",
+                "type": "namespace",
+                "actions": [
+                    "procmon-manual"
+                ]
+            },
+            {
+                "name": "packet-capture",
+                "type": "namespace",
+                "actions": [
+                    "packet-capture"
+                ]
+            }
+        ],
+        "actions": [
+            {
+                "name": "wpr-cpu",
+                "type": "wpr",
+                "config": {
+                    "profiles": [
+                        "CPU",
+                        "DiskIO",
+                        "FileIO"
+                    ]
+                },
+                "outputs": [
+                    "azstorage"
+                ]
+            },
+            {
+                "name": "console-out",
+                "type": "console"
+            },
+            {
+                "name": "procmon-manual",
+                "type": "external",
+                "config": {
+                    "expand": "zip",
+                    "addToPath": "true",
+                    "url": "https://download.sysinternals.com/files/ProcessMonitor.zip",
+                    "downloadLocation": "c:\\temp\\",
+                    "downloadFileName": "ProcessMonitor.zip",
+                    "startCommand": [
+                        "cmd",
+                        "/c",
+                        "c:\\temp\\procmon64.exe",
+                        "-accepteula",
+                        "/backingfile {tracefile}"
+                    ],
+                    "stopCommand": [
+                        "cmd",
+                        "/c",
+                        "c:\\temp\\procmon64.exe",
+                        "/terminate"
+                    ]
+                },
+                "outputs": [
+                    "azstorage"
+                ]
+            },
+            {
+                "name": "packet-capture",
+                "type": "external",
+                "config": {
+                    "expand": "none",
+                    "addToPath": "true",
+                    "url": "https://aka.ms/startpacketcapture",
+                    "downloadLocation": "c:\\temp\\",
+                    "downloadFileName": "startpacketcapture.ps1",
+                    "startCommand": [
+                        "powershell",
+                        "c:\\temp\\startpacketcapture.ps1",
+                        "-NoPrompt",
+                        "-EtlFile",
+                        "{tracefile}"
+                    ],
+                    "stopCommand": [
+                        "powershell",
+                        "/c",
+                        "Stop-NetEventSession HnsPacketCapture"
+                    ]
+                }
+            }
+        ],
+        "outputs": [
+            {
+                "name": "azstorage",
+                "type": "az-storage",
+                "config": {
+                    "containerName": "trigger-traces"
+                }
+            }
+        ]
+    },
+    "kubernetes": {
+        "kubeconfig": "C:\\Users\\jstur\\.kube\\config"
+    }
+}
